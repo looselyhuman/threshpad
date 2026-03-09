@@ -49,12 +49,16 @@ function runBatctl({ start, stop }) {
     }
     try {
         const proc = Gio.Subprocess.new(
-            [SUDO, BATCTL, 'set', '--start', String(start), '--stop', String(stop)],
+            [SUDO, '-n', BATCTL, 'set', '--start', String(start), '--stop', String(stop)],
             Gio.SubprocessFlags.STDERR_PIPE
         );
-        proc.wait_check_async(null, (_proc, res) => {
+        proc.communicate_utf8_async(null, null, (_proc, res) => {
             try {
-                _proc.wait_check_finish(res);
+                const [, , stderr] = _proc.communicate_utf8_finish(res);
+                if (!_proc.get_successful()) {
+                    log(`threshpad: batctl stderr: ${stderr?.trim()}`);
+                    logError(new Error(`exit ${_proc.get_exit_status()}`), 'threshpad: batctl set failed');
+                }
             } catch (e) {
                 logError(e, 'threshpad: batctl set failed');
             }
