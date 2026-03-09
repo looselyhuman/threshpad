@@ -50,11 +50,14 @@ A warning will appear if UPower is active.
 
 ## Preset Modes
 
-| Mode        | BAT0        | BAT1        |
-|-------------|-------------|-------------|
-| Desk        | 40% / 50%   | 75% / 80%   |
-| Balanced    | 75% / 80%   | 75% / 80%   |
-| Travel Prep | 0% / 100%   | 0% / 100%   |
+| Mode        | BAT0        | BAT1        | Use when…                        |
+|-------------|-------------|-------------|----------------------------------|
+| Desk        | 40% / 50%   | 40% / 50%   | Mostly plugged in — max lifespan |
+| Balanced    | 75% / 80%   | 75% / 80%   | Mixed plugged/unplugged use      |
+| Travel Prep | 0% / 100%   | 0% / 100%   | Charge fully before a trip       |
+
+Values follow [TLP project](https://linrunner.de/tlp/faq/battery.html) and Lenovo recommendations.
+See [docs/PRESET-RATIONALE.md](docs/PRESET-RATIONALE.md) for sources and reasoning.
 
 ## Development
 

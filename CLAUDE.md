@@ -30,7 +30,7 @@ reads battery state directly from sysfs for efficiency.
 ## Preset Modes
 | Mode        | BAT0        | BAT1        | Notes                          |
 |-------------|-------------|-------------|--------------------------------|
-| Desk        | 40% / 50%   | 75% / 80%   | Daily driver, mostly plugged in|
+| Desk        | 40% / 50%   | 40% / 50%   | Daily driver, mostly plugged in|
 | Balanced    | 75% / 80%   | 75% / 80%   | Mixed use                      |
 | Travel Prep | 0% / 100%   | 0% / 100%   | Notify user when fully charged |
 

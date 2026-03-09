@@ -16,7 +16,7 @@ export const PRESETS = {
     'Desk Mode': {
         label: 'Desk Mode',
         BAT0: { start: 40, stop: 50 },
-        BAT1: { start: 75, stop: 80 },
+        BAT1: { start: 40, stop: 50 },
     },
     'Balanced': {
         label: 'Balanced',
