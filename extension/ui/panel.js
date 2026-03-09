@@ -1,5 +1,6 @@
 import GLib from 'gi://GLib';
 import Gio from 'gi://Gio';
+import GObject from 'gi://GObject';
 import St from 'gi://St';
 import * as PanelMenu from 'resource:///org/gnome/shell/ui/panelMenu.js';
 import * as PopupMenu from 'resource:///org/gnome/shell/ui/popupMenu.js';
@@ -76,9 +77,10 @@ function readBattery(bat) {
 /**
  * Top-bar panel button showing live battery state and preset actions.
  */
-export class ThreshpadPanel extends PanelMenu.Button {
-    constructor(extension) {
-        super(0.0, 'threshpad');
+export const ThreshpadPanel = GObject.registerClass(
+class ThreshpadPanel extends PanelMenu.Button {
+    _init(extension) {
+        super._init(0.0, 'threshpad');
         this._extension = extension;
         this._pollId = null;
         this._batteries = detectBatteries();
@@ -148,4 +150,4 @@ export class ThreshpadPanel extends PanelMenu.Button {
         }
         super.destroy();
     }
-}
+});
