@@ -5,6 +5,8 @@ A GNOME Shell extension for managing ThinkPad dual-battery charge thresholds.
 Wraps the [`batctl`](https://github.com/Ooooze/batctl) binary to provide a
 system-tray UI with live battery status and one-click preset modes.
 
+![threshpad screenshot](docs/assets/screenshot.png)
+
 This software was designed, scaffolded, coded, and debugged by Claude Code (Sonnet 4.6). Human provided high level requirements and keyboard gopher services.
 
 ## Features
