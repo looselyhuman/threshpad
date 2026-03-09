@@ -4,7 +4,7 @@
 
 - Ubuntu 24+ or Fedora 40+ with GNOME 45+
 - Node.js 20+ (for ESLint)
-- `batctl` installed at `/usr/local/bin/batctl`
+- [`batctl`](https://github.com/Ooooze/batctl) installed at `/usr/local/bin/batctl`
 
 ## Setup
 

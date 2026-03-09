@@ -2,7 +2,7 @@
 
 A GNOME Shell extension for managing ThinkPad dual-battery charge thresholds.
 
-Wraps the [`batctl`](https://github.com/nickg/batctl) binary to provide a
+Wraps the [`batctl`](https://github.com/Ooooze/batctl) binary to provide a
 system-tray UI with live battery status and one-click preset modes.
 
 ## Features
@@ -16,7 +16,7 @@ system-tray UI with live battery status and one-click preset modes.
 
 - GNOME Shell 45+
 - ThinkPad with `thinkpad_acpi` kernel module
-- [`batctl`](https://github.com/nickg/batctl) installed at `/usr/local/bin/batctl`
+- [`batctl`](https://github.com/Ooooze/batctl) installed at `/usr/local/bin/batctl`
 
 ## Installation
 

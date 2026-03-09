@@ -7,7 +7,7 @@ reads battery state directly from sysfs for efficiency.
 
 ## Architecture
 - **Frontend:** GNOME Shell Extension — JavaScript/GJS, targeting GNOME 45+
-- **Backend:** `batctl` binary (Go) installed at `/usr/local/bin/batctl`
+- **Backend:** `batctl` binary ([github.com/Ooooze/batctl](https://github.com/Ooooze/batctl)) installed at `/usr/local/bin/batctl`
 - **Writes:** `Gio.Subprocess` → `batctl set --start N --stop N`
 - **Reads:** `Gio.File.load_contents()` directly on `/sys/class/power_supply/BAT*/`
 - **Permissions:** udev rules (`udev/99-threshpad.rules`) grant the `battery` group
