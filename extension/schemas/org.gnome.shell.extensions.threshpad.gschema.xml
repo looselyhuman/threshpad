@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schemalist>
+  <schema id="org.gnome.shell.extensions.threshpad"
+          path="/org/gnome/shell/extensions/threshpad/">
+    <!-- Phase 2: user-defined threshold settings will go here -->
+  </schema>
+</schemalist>
