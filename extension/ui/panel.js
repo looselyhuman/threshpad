@@ -113,34 +113,45 @@ class ThreshpadPanel extends PanelMenu.Button {
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         // Presets with threshold summary
+        this._presetItems = [];
         for (const [name, preset] of Object.entries(PRESETS)) {
             const summary = presetSummary(preset, this._batteries);
             const item = new PopupMenu.PopupMenuItem(`${name}  ${summary}`);
             item.connect('activate', () => {
-                applyPreset(preset, this._batteries);
+                this._applyPresetWithFeedback(preset);
             });
             this.menu.addMenuItem(item);
+            this._presetItems.push(item);
         }
+    }
+
+    /** Apply a preset and temporarily disable preset items to signal activity. */
+    _applyPresetWithFeedback(preset) {
+        applyPreset(preset, this._batteries);
+
+        // Disable all preset items to prevent spamming during write + poll lag
+        for (const item of this._presetItems)
+            item.reactive = false;
+
+        // Re-enable and refresh after a short delay (writes complete well under 3s)
+        GLib.timeout_add_seconds(GLib.PRIORITY_DEFAULT, 3, () => {
+            this._refresh();
+            for (const item of this._presetItems)
+                item.reactive = true;
+            return GLib.SOURCE_REMOVE;
+        });
     }
 
     /** Poll battery state and update label + menu items. */
     _refresh() {
         const states = this._batteries.map(bat => ({ bat, ...readBattery(bat) }));
 
-        // Top-bar label: "⚡ 98% [75–80]" or "⚡ 98% / 72% [75–80]"
+        // Top-bar label: "⚡ 98%" or "⚡ 98% / 72%"
         const capacityParts = states.map(({ capacity }) => `${capacity ?? '?'}%`);
-        const threshParts = states.map(({ start, stop }) =>
-            (start !== null && stop !== null) ? `${start}–${stop}` : '?–?'
-        );
-        // Show thresholds once if all batteries share the same values, else per-battery
-        const allSameThresh = threshParts.every(t => t === threshParts[0]);
-        const threshLabel = threshParts.length > 0
-            ? ` [${allSameThresh ? threshParts[0] : threshParts.join(' / ')}]`
-            : '';
 
         this._label.set_text(
             capacityParts.length > 0
-                ? `⚡ ${capacityParts.join(' / ')}${threshLabel}`
+                ? `⚡ ${capacityParts.join(' / ')}`
                 : '⚡ —'
         );
 
