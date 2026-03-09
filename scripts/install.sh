@@ -4,6 +4,22 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 
+BATCTL_VERSION="v2026.3.11"
+BATCTL_URL="https://github.com/Ooooze/batctl/releases/download/${BATCTL_VERSION}/batctl-${BATCTL_VERSION#v}-linux-x86_64.tar.gz"
+
+# Install batctl if not already present
+if ! command -v batctl &>/dev/null; then
+    echo "==> Installing batctl ${BATCTL_VERSION}..."
+    TMP=$(mktemp -d)
+    curl -fsSL "$BATCTL_URL" -o "$TMP/batctl.tar.gz"
+    tar -xzf "$TMP/batctl.tar.gz" -C "$TMP"
+    sudo install -m 755 "$TMP/batctl" /usr/local/bin/batctl
+    rm -rf "$TMP"
+    echo "    batctl installed to /usr/local/bin/batctl"
+else
+    echo "==> batctl already installed ($(command -v batctl))"
+fi
+
 echo "==> Creating 'battery' group and adding $USER..."
 sudo groupadd -f battery
 sudo usermod -aG battery "$USER"
