@@ -5,23 +5,23 @@ const BATCTL = '/usr/local/bin/batctl';
 const MOCK = GLib.getenv('THRESHPAD_MOCK') === '1';
 
 /**
- * Preset mode definitions.
- * Each entry is { bat0: { start, stop }, bat1: { start, stop } }.
+ * Preset mode definitions, keyed by battery name.
+ * Batteries absent from the running system are silently skipped at apply time.
  *
- * @type {Object.<string, { bat0: {start: number, stop: number}, bat1: {start: number, stop: number} }>}
+ * @type {Object.<string, Object.<string, {start: number, stop: number}>>}
  */
 export const PRESETS = {
     'Desk Mode': {
-        bat0: { start: 40, stop: 50 },
-        bat1: { start: 75, stop: 80 },
+        BAT0: { start: 40, stop: 50 },
+        BAT1: { start: 75, stop: 80 },
     },
     'Balanced': {
-        bat0: { start: 75, stop: 80 },
-        bat1: { start: 75, stop: 80 },
+        BAT0: { start: 75, stop: 80 },
+        BAT1: { start: 75, stop: 80 },
     },
     'Travel Prep': {
-        bat0: { start: 0, stop: 100 },
-        bat1: { start: 0, stop: 100 },
+        BAT0: { start: 0, stop: 100 },
+        BAT1: { start: 0, stop: 100 },
     },
 };
 
@@ -54,14 +54,15 @@ function runBatctl({ start, stop }) {
 }
 
 /**
- * Apply a preset by running batctl for each battery defined in the preset.
+ * Apply a preset for each detected battery that has an entry in the preset.
+ * Batteries not present on this system are silently skipped.
  *
- * @param {{ bat0: {start: number, stop: number}, bat1?: {start: number, stop: number} }} preset
+ * @param {Object.<string, {start: number, stop: number}>} preset
+ * @param {string[]} detectedBatteries - e.g. ['BAT1'] or ['BAT0', 'BAT1']
  */
-export function applyPreset(preset) {
-    runBatctl(preset.bat0);
-    if (preset.bat1) {
-        // BAT1 control needs hardware verification — may be a no-op on some T480s
-        runBatctl(preset.bat1);
+export function applyPreset(preset, detectedBatteries) {
+    for (const bat of detectedBatteries) {
+        if (preset[bat])
+            runBatctl(preset[bat]);
     }
 }

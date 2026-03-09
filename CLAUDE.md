@@ -18,9 +18,11 @@ reads battery state directly from sysfs for efficiency.
 - Primary target: ThinkPad T480 with dual batteries
   - BAT0: Internal (harder to replace → conservative defaults: start 40%, stop 50%)
   - BAT1: External/swappable (higher defaults: start 75%, stop 80%)
-- **Important:** Run `batctl detect` on the actual hardware before assuming BAT1
-  exists or that independent per-battery control works via the CLI. Verify before
-  building that feature out.
+- **Observed on dev hardware:** only `BAT1` appears under `/sys/class/power_supply/`
+  (BAT0 absent — internal battery may not be installed). The extension handles this
+  gracefully by enumerating present batteries at startup rather than hardcoding names.
+- `batctl detect` needed to verify per-battery write targeting before dual-battery
+  preset writes are trusted.
 
 ## Preset Modes
 | Mode        | BAT0        | BAT1        | Notes                          |

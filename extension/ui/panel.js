@@ -32,6 +32,34 @@ function readSysfs(path) {
 }
 
 /**
+ * Enumerate present BAT* devices under SYSFS_BASE, sorted (BAT0 before BAT1).
+ *
+ * @returns {string[]} e.g. ['BAT0', 'BAT1'] or ['BAT1']
+ */
+function detectBatteries() {
+    try {
+        const dir = Gio.File.new_for_path(SYSFS_BASE);
+        const enumerator = dir.enumerate_children(
+            'standard::name,standard::type',
+            Gio.FileQueryInfoFlags.NONE,
+            null
+        );
+        const batteries = [];
+        let info;
+        while ((info = enumerator.next_file(null)) !== null) {
+            const name = info.get_name();
+            if (/^BAT\d+$/.test(name))
+                batteries.push(name);
+        }
+        enumerator.close(null);
+        return batteries.sort();
+    } catch (e) {
+        logError(e, 'threshpad: failed to enumerate batteries');
+        return [];
+    }
+}
+
+/**
  * Read capacity and status for a given battery identifier.
  *
  * @param {string} bat - e.g. 'BAT0' or 'BAT1'
@@ -53,6 +81,7 @@ export class ThreshpadPanel extends PanelMenu.Button {
         super(0.0, 'threshpad');
         this._extension = extension;
         this._pollId = null;
+        this._batteries = detectBatteries();
 
         this._label = new St.Label({
             text: '⚡',
@@ -67,18 +96,20 @@ export class ThreshpadPanel extends PanelMenu.Button {
 
     /** Build the popup menu structure. */
     _buildMenu() {
-        // Status section
-        this._bat0Item = new PopupMenu.PopupMenuItem('BAT0: —', { reactive: false });
-        this._bat1Item = new PopupMenu.PopupMenuItem('BAT1: —', { reactive: false });
-        this.menu.addMenuItem(this._bat0Item);
-        this.menu.addMenuItem(this._bat1Item);
+        // One status item per detected battery
+        this._batItems = {};
+        for (const bat of this._batteries) {
+            const item = new PopupMenu.PopupMenuItem(`${bat}: —`, { reactive: false });
+            this._batItems[bat] = item;
+            this.menu.addMenuItem(item);
+        }
         this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
         // Presets
         for (const [name, preset] of Object.entries(PRESETS)) {
             const item = new PopupMenu.PopupMenuItem(name);
             item.connect('activate', () => {
-                applyPreset(preset);
+                applyPreset(preset, this._batteries);
             });
             this.menu.addMenuItem(item);
         }
@@ -86,22 +117,17 @@ export class ThreshpadPanel extends PanelMenu.Button {
 
     /** Poll battery state and update label + menu items. */
     _refresh() {
-        const bat0 = readBattery('BAT0');
-        const bat1 = readBattery('BAT1');
+        const states = this._batteries.map(bat => ({ bat, ...readBattery(bat) }));
 
-        const fmt = ({ capacity, status }) =>
-            capacity !== null ? `${capacity}% (${status ?? '?'})` : 'N/A';
+        const labelParts = states.map(({ capacity }) => `${capacity ?? '?'}%`);
+        this._label.set_text(`⚡ ${labelParts.join(' / ')}`);
 
-        const bat0Str = fmt(bat0);
-        const bat1Str = fmt(bat1);
-
-        const label = bat1.capacity !== null
-            ? `⚡ ${bat0.capacity ?? '?'}% / ${bat1.capacity ?? '?'}%`
-            : `⚡ ${bat0.capacity ?? '?'}%`;
-
-        this._label.set_text(label);
-        this._bat0Item.label.set_text(`BAT0: ${bat0Str}`);
-        this._bat1Item.label.set_text(`BAT1: ${bat1Str}`);
+        for (const { bat, capacity, status } of states) {
+            const text = capacity !== null
+                ? `${bat}: ${capacity}% (${status ?? '?'})`
+                : `${bat}: N/A`;
+            this._batItems[bat]?.label.set_text(text);
+        }
     }
 
     _startPolling() {
