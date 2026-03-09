@@ -3,8 +3,9 @@ import GLib from 'gi://GLib';
 
 const MOCK = GLib.getenv('THRESHPAD_MOCK') === '1';
 
-// Locate batctl via PATH (covers /usr/bin, /usr/local/bin, AUR installs, etc.)
+// Locate batctl and sudo via PATH
 const BATCTL = GLib.find_program_in_path('batctl');
+const SUDO = GLib.find_program_in_path('sudo');
 
 /**
  * Preset mode definitions, keyed by battery name.
@@ -28,7 +29,7 @@ export const PRESETS = {
 };
 
 /**
- * Invoke batctl to set charge thresholds.
+ * Invoke batctl via sudo to set charge thresholds (requires NOPASSWD sudoers rule).
  * No-ops in mock mode.
  *
  * @param {{ start: number, stop: number }} thresholds
@@ -42,9 +43,13 @@ function runBatctl({ start, stop }) {
         logError(new Error('batctl not found in PATH'), 'threshpad: install batctl to apply presets');
         return;
     }
+    if (!SUDO) {
+        logError(new Error('sudo not found in PATH'), 'threshpad: sudo required to invoke batctl');
+        return;
+    }
     try {
         const proc = Gio.Subprocess.new(
-            [BATCTL, 'set', '--start', String(start), '--stop', String(stop)],
+            [SUDO, BATCTL, 'set', '--start', String(start), '--stop', String(stop)],
             Gio.SubprocessFlags.STDERR_PIPE
         );
         proc.wait_check_async(null, (_proc, res) => {

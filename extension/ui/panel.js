@@ -98,6 +98,10 @@ class ThreshpadPanel extends PanelMenu.Button {
 
     /** Build the popup menu structure. */
     _buildMenu() {
+        // Header
+        this.menu.addMenuItem(new PopupMenu.PopupMenuItem('threshpad', { reactive: false }));
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
         // One status item per detected battery
         this._batItems = {};
         for (const bat of this._batteries) {

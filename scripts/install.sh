@@ -29,6 +29,12 @@ sudo cp "$REPO_ROOT/udev/99-threshpad.rules" /etc/udev/rules.d/
 sudo udevadm control --reload-rules
 sudo udevadm trigger
 
+echo "==> Installing sudoers rule for batctl..."
+BATCTL_PATH="$(command -v batctl)"
+echo "$USER ALL=(ALL) NOPASSWD: $BATCTL_PATH set *" \
+    | sudo tee /etc/sudoers.d/threshpad > /dev/null
+sudo chmod 0440 /etc/sudoers.d/threshpad
+
 echo "==> Installing GNOME extension..."
 EXTENSION_DIR="$HOME/.local/share/gnome-shell/extensions/threshpad@looselyhuman"
 mkdir -p "$EXTENSION_DIR"
@@ -41,3 +47,5 @@ echo ""
 echo "Done. Next steps:"
 echo "  1. Log out and back in for group membership to take effect."
 echo "  2. Enable the extension: gnome-extensions enable threshpad@looselyhuman"
+echo ""
+echo "Note: Disable 'Charge Limit' in GNOME Settings → Power to avoid conflicts."
